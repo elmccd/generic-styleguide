@@ -1,0 +1,47 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    title= title
+    link(rel='stylesheet', href='/github.min.css')
+    link(rel='stylesheet', href='/docs.css')
+
+  body
+    header.masthead
+      .container
+        a.masthead-logo(href='/')
+          span
+            span Primer 222
+            span=page
+        nav.masthead-nav
+          for link in links
+            a.active(href=link.url)= link.name
+    .container
+      .columns.docs-layout
+        .one-fourth.column
+          for group in groups
+            nav.menu.docs-menu
+              span.menu-heading= group.title
+              for page in group.pages
+                if page.id == currentPage
+                  a.menu-item.selected(href='/page/'+page.id)= page.label
+                else
+                  a.menu-item(href='/page/' + page.id)= page.label
+        .three-fourths.column.markdown-body
+          .tabnav
+            .right
+              a.tabnav-extra(href='#') Source
+              a.tabnav-extra(href='../direct') Direct
+
+            nav.tabnav-tabs
+              for tab in currentTabs
+                if tab.id == currentTab
+                  a.tabnav-tab.selected(href='/page/' + currentPage + '/' + tab.id)= tab.label
+                else
+                  a.tabnav-tab(href='/page/' + currentPage + '/' + tab.id)= tab.label
+
+          .markdown-body!= content
+  script(src='/jquery.min.js')
+  script(src='/primer.js')
