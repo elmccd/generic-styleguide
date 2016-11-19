@@ -6,7 +6,7 @@ html(lang='en')
     meta(name='viewport', content='width=device-width, initial-scale=1')
     title= title
 
-  body!= content
-
-  script(src='/jquery.min.js')
-  script(src='/primer.js')
+  body
+    pre!= context
+    script
+      | window.context = !{context};

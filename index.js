@@ -1,19 +1,10 @@
 var jade = require('jade');
 var fs = require('fs');
+var path = require('path');
 var hljs = require('highlight.js');
 
 /**
  * Generates a url-safe "slug" form of a string.
- *
- * @static
- * @memberOf _
- * @category String
- * @param {string} string String value.
- * @return {string} URL-safe form of a string.
- * @example
- *
- * _.slugify('A Test')
- * // => a-test
  */
 function slugify(string) {
     return string.toString().trim().toLowerCase().replace(/ /g, '-').replace(/([^a-zA-Z0-9\._-]+)/, '');
@@ -29,8 +20,6 @@ var md = require('markdown-it')({
                 if (lang === 'html') {
                     preview = `<div class="docs-example clearfix">${str}</div>`;
                 }
-
-                console.log('dddd', str, lang);
 
                 return preview + hljs.highlight(lang, str, true).value;
             } catch (__) {}
@@ -69,22 +58,18 @@ var getTab = function (page, tabId) {
         .find(el => el.id === tabId);
 };
 
-var sendResponse = function (groupId, pageId, tabId, template) {
-    context.content = [];
-    context.tabs = context.tabs || [];
+var getTemplate = function (template) {
+    return context.themes
+        .find(el => el.id === template);
+};
 
-    console.log('getPage(page)', getPage(pageId));
+var sendResponse = function (groupId, pageId, tabId, template) {
 
     if (pageId) {
         var pageObj = getPage(pageId);
         context.currentGroup = getGroup(groupId);
         context.currentTabs = pageObj.tabs;
-        pageObj.tabs = pageObj.tabs || [];
-        // context.content = pageObj.tabs.map(tab => {
-        //     var file = fs.readFileSync(tab.file, 'utf-8');
-        //     tab.content = md.render(file);
-        //     return tab;
-        // });
+        context.defaultTab = getDefaultTab(pageId);
 
         var tab = getTab(pageObj, tabId);
         var path = tab && tab.file ? tab.file : pageObj.file;
@@ -96,49 +81,67 @@ var sendResponse = function (groupId, pageId, tabId, template) {
 
         context.currentPage = pageId;
 
+        context.context = context.context || JSON.stringify(context, null, 4);
 
-        var fn = jade.compile(template, options);
-
-        console.log(context);
-
-        return fn(context);
     } else {
-        return 'Not Found';
+        context.content = 'Page not found';
     }
+    var fn = jade.compile(template, options);
+
+    return fn(context);
 };
 
 app.use(express.static('./'));
 
-app.get('/', function (req, res) {
-    res.send(sendResponse());
-});
+const getDefaultTab = function getDefaultTab (pageId) {
+    const page = getPage(pageId);
+    return page.tabs && page.tabs.length ? page.tabs[0].id : 'default';
+};
 
-
-app.get('/:group/:page/:tab?/:template?', function (req, res) {
+app.get('/:group/:page/:tab?', function (req, res, next) {
 
     const groupId = req.params.group;
+
+    if (!getGroup(groupId)) {
+        next();
+        return;
+    }
     const pageId = req.params.page;
-    const tabId = req.params.tab;
-    const templateId = req.params.template;
+    let tabId = req.params.tab;
+    const templateId = req.query.template || 'default';
 
-    if (!tabId) {
-        res.redirect(`/${groupId}/${pageId}/preview`);
-        return;
-    }
-    if (!templateId) {
-        res.redirect(`/${groupId}/${pageId}/${tabId}/default`);
-        return;
-    }
+    context.currentTemplate = templateId;
+    
+    const page = getPage(pageId);
 
-    if (getPage(pageId)) {
-        var template = fs.readFileSync(templateId + '.jade', 'utf-8');
+    if (page) {
+
+        if (!tabId && !page.file) {
+            tabId = getDefaultTab(pageId);
+        }
+        page.tabs = page.tabs || [];
+
+        const templateObj = getTemplate(templateId);
+        const templateEntry = path.join(context.themesDir, templateObj.id, templateObj.entry);
+
+        var template = fs.readFileSync(templateEntry, 'utf-8');
         res.send(sendResponse(groupId, pageId, tabId, template));
     } else {
         res.end(404);
     }
 });
 
-app.use(express.static('./'));
+app.use('/themes', express.static(context.themesDir));
+
+
+app.get('*', function (req, res) {
+    const templateObj = getTemplate('default');
+    const templateEntry = path.join(context.themesDir, templateObj.id, templateObj.entry);
+
+    var template = fs.readFileSync(templateEntry, 'utf-8');
+    res.send(sendResponse(null, null, null, template));
+});
+
 
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!')

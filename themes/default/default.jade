@@ -1,0 +1,49 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    title= title
+    link(rel='stylesheet', href='/themes/default/github.min.css')
+    link(rel='stylesheet', href='/themes/default/docs.css')
+
+  body
+    header.masthead
+      .container
+        a.masthead-logo(href='/')
+          span
+            span= title
+        nav.masthead-nav
+          for link in links
+            a.active(href=link.url)= link.name
+    .container
+      .columns.docs-layout
+        .one-fourth.column
+          for group in groups
+            nav.menu.docs-menu
+              span.menu-heading= group.title
+              for page in group.pages
+                if page.id === currentPage && group.slug === currentGroup.slug
+                  a.menu-item.selected(href='/'+group.slug+'/'+page.id)= page.label
+                else
+                  a.menu-item(href='/'+group.slug+'/' + page.id)= page.label
+        .three-fourths.column.markdown-body
+          .tabnav
+            .right
+              for item in links
+                a.tabnav-extra(href=item.url, target='_blank')= item.name
+              for item in themes
+                if currentTemplate !== item.id
+                  a.tabnav-extra(href='?template='+item.id)= item.label
+
+            nav.tabnav-tabs
+              if currentTabs
+                for tab in currentTabs
+                  if tab.id == currentTab
+                    a.tabnav-tab.selected(href='/'+currentGroup.slug+'/' + currentPage + '/' + tab.id)= tab.label
+                  else
+                    a.tabnav-tab(href='/'+currentGroup.slug+'/' + currentPage + '/' + tab.id)= tab.label
+
+          .markdown-body!= content
+  script(src='/themes/default/default.js')

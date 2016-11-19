@@ -1,21 +1,34 @@
 module.exports = {
-    title: "Style Guide2",
+    title: "Style Guide",
     links: [
         {
             name: "Docs",
             url: "/"
         }, {
             name: "Github",
-            url: "/github"
+            url: "http://github.com"
         }
     ],
 
-    defaultTheme: './index.jade',
+    defaultTheme: 'default',
 
-    customThemes: [
+    themesDir: './themes',
+
+    themes: [
+        {
+            id: 'default',
+            label: 'Default',
+            entry: 'default.jade'
+        },
         {
             id: 'direct',
-            path: './direct.jade'
+            label: 'Direct template',
+            entry: 'direct.jade'
+        },
+        {
+            id: 'raw',
+            label: 'Raw Data',
+            entry: 'raw.jade'
         }
 
     ],
@@ -27,7 +40,6 @@ module.exports = {
                 {
                     id: 'input-number',
                     label: 'Number Input',
-                    file: './utils/README.md',
                     tabs: [{
                         id: 'preview',
                         label: 'Preview',
@@ -40,12 +52,17 @@ module.exports = {
                         id: 'changelog',
                         label: 'Changelog',
                         file: './utils/CHANGELOG.md'
-                    }]
+                    }],
+                    links: [
+                        {
+                            name: "Source",
+                            url: "http://github.com"
+                        }
+                    ]
                 },
                 {
                     id: 'utils',
                     label: 'Utils',
-                    file: './utils/README.md',
                     tabs: [{
                         id: 'preview',
                         label: 'Preview',
@@ -55,7 +72,7 @@ module.exports = {
                 {
                     id: 'api',
                     label: 'Utils API',
-                    file: './utils/README.md',
+                    file: './utils/CHANGELOG.md',
                     tabs: [{
                         id: 'preview',
                         label: 'Preview',
@@ -80,22 +97,9 @@ module.exports = {
             title: "Styleguide",
             pages: [
                 {
-                    id: 'input-number',
-                    label: 'Number Input',
-                    file: './utils/README.md',
-                    tabs: [{
-                        id: 'preview',
-                        label: 'Preview',
-                        file: './utils/README.md'
-                    }, {
-                        id: 'api',
-                        label: 'API',
-                        file: './utils/DOCUMENTATION.md'
-                    }, {
-                        id: 'changelog',
-                        label: 'Changelog',
-                        file: './utils/CHANGELOG.md'
-                    }]
+                    id: 'readme',
+                    label: 'Readme',
+                    file: 'README.md'
                 },
                 {
                     id: 'utils',
