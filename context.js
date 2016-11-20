@@ -33,8 +33,14 @@ module.exports = {
 
     ],
 
+    default: {
+        group: 'styleguide',
+        page: 'readme'
+    },
+
     groups: [
         {
+            id: "components",
             title: "Components",
             pages: [
                 {
@@ -94,6 +100,7 @@ module.exports = {
         },
 
         {
+            id: "styleguide",
             title: "Styleguide",
             pages: [
                 {

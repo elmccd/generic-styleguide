@@ -24,10 +24,10 @@ html(lang='en')
             nav.menu.docs-menu
               span.menu-heading= group.title
               for page in group.pages
-                if page.id === currentPage && group.slug === currentGroup.slug
-                  a.menu-item.selected(href='/'+group.slug+'/'+page.id)= page.label
+                if page.id === currentPageId && group.id === currentGroup.id
+                  a.menu-item.selected(href='/'+group.id+'/'+page.id)= page.label
                 else
-                  a.menu-item(href='/'+group.slug+'/' + page.id)= page.label
+                  a.menu-item(href='/'+group.id+'/' + page.id)= page.label
         .three-fourths.column.markdown-body
           .tabnav
             .right
@@ -38,12 +38,11 @@ html(lang='en')
                   a.tabnav-extra(href='?template='+item.id)= item.label
 
             nav.tabnav-tabs
-              if currentTabs
-                for tab in currentTabs
-                  if tab.id == currentTab
-                    a.tabnav-tab.selected(href='/'+currentGroup.slug+'/' + currentPage + '/' + tab.id)= tab.label
-                  else
-                    a.tabnav-tab(href='/'+currentGroup.slug+'/' + currentPage + '/' + tab.id)= tab.label
+              for tab in currentPage.tabs
+                if tab.id == currentTabId
+                  a.tabnav-tab.selected(href='/'+currentGroup.id+'/' + currentPageId + '/' + tab.id)= tab.label
+                else
+                  a.tabnav-tab(href='/'+currentGroup.id+'/' + currentPageId + '/' + tab.id)= tab.label
 
           .markdown-body!= content
   script(src='/themes/default/default.js')
