@@ -1,15 +1,10 @@
 # Utils
 
-> Utils blebleble
+> Utils desc
 
 - one
 - two
 - two
-- two
-- two
-- two
-- two
-- drei
 
 ### Examples
 
@@ -23,5 +18,9 @@ console.log(123);
 }">CX INPUT NUMBER</cx-input-number>
 ```
 ```html
-<button class="btn">I am a button</button>
+<button class="btn">I am a button!</button>
+```
+
+```html
+<button class="btn btn-danger">I am a button</button>
 ```

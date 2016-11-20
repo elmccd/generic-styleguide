@@ -1,3 +1,5 @@
+const jsdoc2md = require('jsdoc-to-markdown');
+
 module.exports = {
     title: "Style Guide",
     links: [
@@ -53,7 +55,16 @@ module.exports = {
                     }, {
                         id: 'api',
                         label: 'API',
-                        file: './utils/DOCUMENTATION.md'
+                        content: function () {
+                            return 'I am the content ' + Math.random();
+                        }
+                    }, {
+                        id: 'documentation',
+                        label: 'Documentation',
+                        content: function () {
+                            return jsdoc2md.renderSync({ files: 'utils/**/*.js' });
+                        },
+                        parser: 'markdown'
                     }, {
                         id: 'changelog',
                         label: 'Changelog',

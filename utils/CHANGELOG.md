@@ -1,6 +1,6 @@
 # 1.6.0-rc.0 bracing-vortex (2016-10-26)
 
-## Major notes
+## Major notes2
 Please read the [Sandbox Removal Blog Post](http://angularjs.blogspot.com/2016/09/angular-16-expression-sandbox-removal.html).
 
 ## Bug Fixes

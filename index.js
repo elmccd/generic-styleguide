@@ -5,26 +5,28 @@ var hljs = require('highlight.js');
 var express = require('express');
 var cloneDeep = require('lodash.clonedeep');
 
+var parsers = {
+  markdown: require('markdown-it')({
+      html: true,
+      highlight: function (str, lang) {
+          if (lang && hljs.getLanguage(lang)) {
+              var preview = '';
 
-var md = require('markdown-it')({
-    highlight: function (str, lang) {
-        if (lang && hljs.getLanguage(lang)) {
-            var preview = '';
+              try {
 
-            try {
+                  if (lang === 'html') {
+                      preview = `<div class="docs-example clearfix">${str}</div>`;
+                  }
 
-                if (lang === 'html') {
-                    preview = `<div class="docs-example clearfix">${str}</div>`;
-                }
+                  return preview + hljs.highlight(lang, str, true).value;
+              } catch (__) {
+              }
+          }
 
-                return preview + hljs.highlight(lang, str, true).value;
-            } catch (__) {
-            }
-        }
-
-        return ''; // use external default escaping
-    }
-});
+          return ''; // use external default escaping
+      }
+  })
+};
 
 var getGroup = function getGroup (id, context) {
 
@@ -85,15 +87,35 @@ var getResponse = function (groupId, pageId, tabId, templateId, context) {
     const template = getTemplate(templateId, context);
     const page = getPage(pageId, context);
     const tab = getTab(page, tabId);
-    const path = tab && tab.file ? tab.file : page.file;
+    let parser;
 
-    if (tabId && !tab || !path) {
-        return getNotFound(context);
+
+
+    if (tab && tab.content) {
+        context.content = tab.content();
+
+    } else {
+        const path = tab && tab.file ? tab.file : page.file;
+
+        if (path && path.endsWith('.md')) {
+            parser = 'markdown';
+        }
+
+        if (tabId && !tab || !path) {
+            return getNotFound(context);
+        }
+
+        context.content = fs.readFileSync(path, 'utf-8');
     }
 
-    var file = fs.readFileSync(path, 'utf-8');
+    if (tab && tab.parser) {
+        parser = tab.parser;
+    }
 
-    context.content = md.render(file);
+    if (parser === 'markdown') {
+        context.content = parsers.markdown.render(context.content)
+    }
+
     context.currentTemplate = templateId;
     context.currentGroup = getGroup(groupId, context);
     context.currentPage = page;

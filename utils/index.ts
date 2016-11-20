@@ -1,13 +1,17 @@
-/** @module color/mixer */
+/** @module utils */
+
+interface MyInter {
+    color: string
+}
 
 /** The name of the module. */
 export const name = 'mixer';
 
-/** The most recent blended color. */
-export var lastColor = null;
+/** The most recent blended color!. */
+export var lastColorVariable = null;
 
 /**
- * Blend two colors together.
+ * Blend two colors together
  * @param {string} color1 - The first color, in hexidecimal format.
  * @param {string} color2 - The second color, in hexidecimal format.
  * @return {string} The blended color.
