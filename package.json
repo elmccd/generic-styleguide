@@ -9,6 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "highlight.js": "^9.8.0"
+    "highlight.js": "^9.8.0",
+    "lodash.clone": "^4.5.0",
+    "lodash.clonedeep": "^4.5.0"
+  },
+  "devDependencies": {
+    "fs-extra": "^1.0.0"
   }
 }

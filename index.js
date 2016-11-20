@@ -1,15 +1,10 @@
 var jade = require('jade');
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 var hljs = require('highlight.js');
 var express = require('express');
-var app = express();
-var context = require('./context.js');
+var cloneDeep = require('lodash.clonedeep');
 
-context.groups
-    .map(group => group.pages)
-    .reduce((mem, el) => mem.concat(...el), [])
-    .forEach(el => el.tabs = el.tabs || []);
 
 var md = require('markdown-it')({
     highlight: function (str, lang) {
@@ -31,7 +26,7 @@ var md = require('markdown-it')({
     }
 });
 
-var getGroup = function getGroup (id) {
+var getGroup = function getGroup (id, context) {
 
     const group = context.groups.find(group => group.id === id);
 
@@ -42,8 +37,19 @@ var getGroup = function getGroup (id) {
     return group;
 };
 
+var parseContext = function (rawContext) {
 
-var getPage = function (pageId) {
+    const context = cloneDeep(rawContext);
+
+    context.groups
+        .map(group => group.pages)
+        .reduce((mem, el) => mem.concat(...el), [])
+        .forEach(el => el.tabs = el.tabs || []);
+
+    return context;
+};
+
+var getPage = function (pageId, context) {
     return context.groups
         .map(group => group.pages)
         .reduce((mem, el) => mem.concat(...el), [])
@@ -55,7 +61,7 @@ var getTab = function (page, tabId) {
         .find(el => el.id === tabId);
 };
 
-var getTemplate = function (templateId) {
+var getTemplate = function (templateId, context) {
     const templateData = context.themes
         .find(el => el.id === templateId);
 
@@ -72,22 +78,24 @@ var getTemplate = function (templateId) {
     return content;
 };
 
-var getResponse = function (groupId, pageId, tabId, templateId) {
+var getResponse = function (groupId, pageId, tabId, templateId, context) {
 
-    const template = getTemplate(templateId);
-    const page = getPage(pageId);
+    console.log('getResponse', groupId, pageId, tabId, templateId);
+
+    const template = getTemplate(templateId, context);
+    const page = getPage(pageId, context);
     const tab = getTab(page, tabId);
     const path = tab && tab.file ? tab.file : page.file;
 
     if (tabId && !tab || !path) {
-        return getNotFound();
+        return getNotFound(context);
     }
 
     var file = fs.readFileSync(path, 'utf-8');
 
     context.content = md.render(file);
     context.currentTemplate = templateId;
-    context.currentGroup = getGroup(groupId);
+    context.currentGroup = getGroup(groupId, context);
     context.currentPage = page;
     context.currentTabId = tab && tab.id;
     context.currentPageId = pageId;
@@ -98,55 +106,103 @@ var getResponse = function (groupId, pageId, tabId, templateId) {
     return jade.compile(template, {})(context);
 };
 
-var getNotFound = function () {
+var getNotFound = function (context) {
 
-    const template = getTemplate('default');
+    const template = getTemplate('default', context);
 
     context.content = 'Page not found';
 
     return jade.compile(template, {})(context);
 };
 
-const getDefaultTab = function getDefaultTab (pageId) {
+const getDefaultTab = function getDefaultTab (pageId, context) {
 
-    const page = getPage(pageId);
+    const page = getPage(pageId, context);
     return page.tabs && page.tabs.length ? page.tabs[0].id : 'default';
 };
 
-app.use('/themes', express.static(context.themesDir));
+var serve = function serve (port, context) {
 
-app.get('/:group/:page/:tab?', function (req, res, next) {
+    var app = express();
 
-    const groupId = req.params.group;
-    const pageId = req.params.page;
-    const templateId = req.query.template || 'default';
-    let tabId = req.params.tab;
+    app.use('/themes', express.static(context.themesDir));
 
-    const page = getPage(pageId);
+    app.get('/:group/:page/:tab?', function (req, res, next) {
 
-    if (!getGroup(groupId) || !page) {
-        next();
-        return;
+        const groupId = req.params.group;
+        const pageId = req.params.page;
+        const templateId = req.query.template || 'default';
+        let tabId = req.params.tab;
+
+        const page = getPage(pageId, context);
+
+        if (!getGroup(groupId, context) || !page) {
+            next();
+            return;
+        }
+
+        // no tab selected and no file for page specified
+        if (!tabId && !page.file) {
+            tabId = getDefaultTab(pageId, context);
+        }
+
+        res.send(getResponse(groupId, pageId, tabId, templateId, context));
+    });
+
+
+    app.get('/', function (req, res) {
+        res.send(getResponse(context.default.group, context.default.page, undefined, 'default', context));
+    });
+
+    app.get('*', function (req, res) {
+        res.send(getNotFound(context));
+    });
+
+    app.listen(port, function () {
+        console.log('Example app listening on port ' + port +'!')
+    });
+};
+
+module.exports = function Primer (rawContext) {
+
+    const context = parseContext(rawContext);
+
+    this.serve = function (port) {
+        serve(port || 3000, context);
+    };
+
+    this.build = function (buildPath, templateId) {
+        fs.removeSync(buildPath);
+        fs.mkdirSync(buildPath);
+
+        const filePath = path.join(buildPath,  'index.html');
+
+        const content = getNotFound(context);
+        fs.outputFile(filePath, content);
+
+        fs.copy(context.themesDir, path.join(buildPath, context.themesDir));
+
+        context.groups.forEach(group => {
+
+            group.pages.forEach(page => {
+
+                const filePath = path.join(buildPath, group.id, page.id, 'index.html');
+
+                const tabId = page.file ? null : getDefaultTab(page.id, context);
+
+                const content = getResponse(group.id, page.id, tabId, templateId, context);
+                fs.outputFile(filePath, content);
+
+                page.tabs.forEach(tab => {
+                    const filePath = path.join(buildPath, group.id, page.id, tab.id, 'index.html');
+
+                    const content = getResponse(group.id, page.id, tab.id, templateId, context);
+                    fs.outputFile(filePath, content);
+
+                });
+            });
+
+        });
+        console.log('build', buildPath);
     }
-
-    // no tab selected and no file for page specified
-    if (!tabId && !page.file) {
-        tabId = getDefaultTab(pageId);
-    }
-
-    res.send(getResponse(groupId, pageId, tabId, templateId));
-});
-
-
-app.get('/', function (req, res) {
-    res.send(getResponse(context.default.group, context.default.page, undefined, 'default'));
-});
-
-app.get('*', function (req, res) {
-    res.send(getNotFound());
-});
-
-
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000!')
-});
+};

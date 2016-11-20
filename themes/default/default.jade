@@ -38,11 +38,14 @@ html(lang='en')
                   a.tabnav-extra(href='?template='+item.id)= item.label
 
             nav.tabnav-tabs
-              for tab in currentPage.tabs
-                if tab.id == currentTabId
-                  a.tabnav-tab.selected(href='/'+currentGroup.id+'/' + currentPageId + '/' + tab.id)= tab.label
-                else
-                  a.tabnav-tab(href='/'+currentGroup.id+'/' + currentPageId + '/' + tab.id)= tab.label
+              if currentPage
+                for tab in currentPage.tabs
+                  if tab.id == currentTabId
+                    a.tabnav-tab.selected(href='/'+currentGroup.id+'/' + currentPageId + '/' + tab.id)= tab.label
+                  else
+                    a.tabnav-tab(href='/'+currentGroup.id+'/' + currentPageId + '/' + tab.id)= tab.label
 
           .markdown-body!= content
   script(src='/themes/default/default.js')
+  script
+    | window.context = !{context};
