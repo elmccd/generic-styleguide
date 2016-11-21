@@ -1,27 +1,29 @@
 # Generic Styleguide
 
 > Universal styleguide generator supporting markdown or any other format as a data source.
+
 > Easily to integrate with all libraries you use.
+
 > Goes well with browser-sync and can generate static website.
 
 ## Examples
 
 ### Run with server
 ```js
-const primer = require('generic-styleguide');
+const sg = require('generic-styleguide');
 const options = require('./options');
 
-const app = primer(options);
+const app = sg(options);
 
 app.serve(3000);
 ```
 
 ### Build standalone version
 ```js
-const primer = require('generic-styleguide');
+const sg = require('generic-styleguide');
 const options = require('./options');
 
-const app = primer(options);
+const app = sg(options);
 
 app.build('./build/path');
 ```
