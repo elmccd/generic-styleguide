@@ -1,27 +1,19 @@
 {
-  "name": "primer",
+  "name": "generic-styleguide",
   "version": "1.0.0",
-  "description": "> Here it goes",
+  "description": "Generic generator for styleguides and similar",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "node serve.js",
-    "start": "node serve.js",
-    "build": "node build.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "browser-sync": "^2.18.1",
-    "docdash": "^0.4.0",
     "express": "^4.14.0",
-    "highlight.js": "^9.8.0",
-    "jsdoc-to-markdown": "^2.0.1",
-    "lodash.clone": "^4.5.0",
-    "lodash.clonedeep": "^4.5.0"
-  },
-  "devDependencies": {
     "fs-extra": "^1.0.0",
-    "minami": "^1.1.1"
+    "highlight.js": "^9.8.0",
+    "lodash.clonedeep": "^4.5.0",
+    "markdown-it": "^8.1.0"
   }
 }
