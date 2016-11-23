@@ -10,10 +10,14 @@
   "license": "ISC",
   "dependencies": {
     "browser-sync": "^2.18.1",
+    "comment-parser": "^0.4.0",
+    "dss": "^1.0.4",
     "express": "^4.14.0",
     "fs-extra": "^1.0.0",
     "highlight.js": "^9.8.0",
     "lodash.clonedeep": "^4.5.0",
-    "markdown-it": "^8.1.0"
+    "markdown-it": "^8.1.0",
+    "node-glob": "^1.2.0",
+    "scss-comment-parser": "^0.8.2"
   }
 }

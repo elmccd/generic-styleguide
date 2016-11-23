@@ -1,0 +1,14 @@
+.cx-color {
+    display: inline-block;
+    margin: 10px;
+    text-transform: uppercase;
+}
+
+.cx-color span {
+    display: block;
+    width: 150px;
+    height: 150px;
+    text-align: center;
+    line-height: 140px;
+    word-break: break-all;
+}

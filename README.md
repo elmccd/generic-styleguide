@@ -8,6 +8,10 @@
 
 ## Examples
 
+```html
+<input type="text" [(ngModel)]="value"> {{value}}
+```
+
 ### Run with server
 ```js
 const sg = require('generic-styleguide');

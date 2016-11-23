@@ -15,7 +15,7 @@ var parsers = {
               try {
 
                   if (lang === 'html') {
-                      preview = `<div class="docs-example clearfix">${str}</div>`;
+                      preview = `<div data-raw='${str}' class="docs-example">${str}</div>`;
                   }
 
                   return preview + hljs.highlight(lang, str, true).value;
